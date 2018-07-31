@@ -64,7 +64,6 @@ class YandexProvider extends ServiceProvider
                 )
             );
         });
-        $this->app->bind('\Payment', Payment::class);
     }
 
     /**
@@ -74,6 +73,6 @@ class YandexProvider extends ServiceProvider
      */
     public function provides()
     {
-        return [PayService::class, YandexDriver::class, '\professionalweb\payment\Yandex', '\Payment'];
+        return [PayService::class, YandexDriver::class, '\professionalweb\payment\Yandex'];
     }
 }
