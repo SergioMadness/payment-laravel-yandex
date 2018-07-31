@@ -4,12 +4,13 @@ use Illuminate\Support\Arr;
 use Illuminate\Contracts\Support\Arrayable;
 use professionalweb\payment\contracts\PayService;
 use professionalweb\payment\contracts\PayProtocol;
+use professionalweb\payment\interfaces\YandexService;
 
 /**
  * Payment service. Pay, Check, etc
  * @package AlpinaDigital\Services
  */
-class YandexDriver implements PayService
+class YandexDriver implements PayService, YandexService
 {
     /**
      * All right
