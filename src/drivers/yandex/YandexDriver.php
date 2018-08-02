@@ -8,7 +8,7 @@ use professionalweb\payment\interfaces\YandexService;
 
 /**
  * Payment service. Pay, Check, etc
- * @package AlpinaDigital\Services
+ * @package professionalweb\payment\drivers\yandex
  */
 class YandexDriver implements PayService, YandexService
 {
