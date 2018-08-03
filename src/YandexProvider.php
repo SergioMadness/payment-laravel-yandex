@@ -13,13 +13,6 @@ use professionalweb\payment\drivers\yandex\YandexDriver;
  */
 class YandexProvider extends ServiceProvider
 {
-    /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = true;
-
     public function boot()
     {
         app(PaymentFacade::class)->registerDriver(YandexService::PAYMENT_YANDEX, YandexService::class);
@@ -64,15 +57,5 @@ class YandexProvider extends ServiceProvider
                 )
             );
         });
-    }
-
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return [PayService::class, YandexDriver::class, '\professionalweb\payment\Yandex'];
     }
 }
