@@ -1,9 +1,11 @@
 <?php namespace professionalweb\payment\drivers\yandex;
 
 use Illuminate\Support\Arr;
+use professionalweb\payment\Form;
 use Illuminate\Contracts\Support\Arrayable;
 use professionalweb\payment\contracts\PayService;
 use professionalweb\payment\contracts\PayProtocol;
+use professionalweb\payment\contracts\Form as IForm;
 use professionalweb\payment\interfaces\YandexService;
 
 /**
@@ -407,7 +409,7 @@ class YandexDriver implements PayService, YandexService
      * @param array     $extraParams
      * @param Arrayable $receipt
      *
-     * @return string
+     * @return IForm
      */
     public function getPaymentForm($orderId,
                                    $paymentId,
@@ -420,6 +422,6 @@ class YandexDriver implements PayService, YandexService
                                    $extraParams = [],
                                    $receipt = null)
     {
-        return '';
+        return new Form();
     }
 }
