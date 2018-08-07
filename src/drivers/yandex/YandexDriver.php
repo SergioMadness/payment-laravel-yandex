@@ -390,7 +390,7 @@ class YandexDriver implements PayService, YandexService
      *
      * @return bool
      */
-    public function needForm(): bool
+    public function needForm()
     {
         return false;
     }
