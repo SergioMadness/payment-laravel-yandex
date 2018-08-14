@@ -3,6 +3,7 @@
 use Illuminate\Contracts\Support\Arrayable;
 use professionalweb\payment\contracts\PayService;
 use professionalweb\payment\contracts\PayProtocol;
+use professionalweb\payment\Form;
 
 /**
  * Payment service. Pay, Check, etc
@@ -345,7 +346,7 @@ class YandexDriver implements PayService
      */
     public function needForm()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -375,7 +376,21 @@ class YandexDriver implements PayService
                                    $extraParams = [],
                                    $receipt = null)
     {
-        // TODO: Implement getPaymentForm() method.
+        if ($receipt instanceof Arrayable) {
+            $extraParams['ym_merchant_receipt'] = (string)$receipt;
+        }
+        $form = new Form($this->getTransport()->getPaymentUrl([]));
+        $form->setField($this->getTransport()->prepareParams(array_merge([
+            'orderNumber'    => $orderId,
+            'customerNumber' => $orderId,
+            'sum'            => $amount,
+            'PaymentId'      => $paymentId,
+            'shopSuccessURL' => $successReturnUrl,
+            'shopDefaultUrl' => $successReturnUrl,
+            'shopFailURL'    => $failReturnUrl,
+        ], $extraParams)));
+
+        return $form;
     }
 
     /**

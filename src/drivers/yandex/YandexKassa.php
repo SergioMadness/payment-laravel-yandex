@@ -57,56 +57,56 @@ class YandexKassa implements PayProtocol
         $this->setEshopUrl($url)->setShopId($shopId)->setScid($scid)->setShopPassword($password);
     }
 
-    /**
-     * Send POST request to Yandex.Kassa
-     *
-     * @param string $url
-     * @param array  $params
-     *
-     * @return string
-     */
-    protected function sendPostRequest($url, array $params)
-    {
-        $curl = curl_init($url);
-        curl_setopt($curl, CURLOPT_USERAGENT, 'Yandex.Money.SDK/PHP');
-        curl_setopt($curl, CURLOPT_POST, 1);
-        $query = http_build_query($params);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $query);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_HEADER, 1);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, ['Expect:']);
-        $body = curl_exec($curl);
-
-        return $body;
-    }
-
-    /**
-     * Parse string with headers
-     *
-     * @param string $headersStr
-     *
-     * @return array
-     */
-    protected function parseHeaders($headersStr)
-    {
-        $result = [];
-
-        $arrRequests = explode("\r\n\r\n", $headersStr);
-
-        for ($index = 0; $index < count($arrRequests) - 1; $index++) {
-
-            foreach (explode("\r\n", $arrRequests[$index]) as $i => $line) {
-                if ($i === 0)
-                    $result[$index]['http_code'] = $line;
-                else {
-                    list ($key, $value) = explode(': ', $line);
-                    $result[$index][mb_strtolower($key)] = $value;
-                }
-            }
-        }
-
-        return $result;
-    }
+//    /**
+//     * Send POST request to Yandex.Kassa
+//     *
+//     * @param string $url
+//     * @param array  $params
+//     *
+//     * @return string
+//     */
+//    protected function sendPostRequest($url, array $params)
+//    {
+//        $curl = curl_init($url);
+//        curl_setopt($curl, CURLOPT_USERAGENT, 'Yandex.Money.SDK/PHP');
+//        curl_setopt($curl, CURLOPT_POST, 1);
+//        $query = http_build_query($params);
+//        curl_setopt($curl, CURLOPT_POSTFIELDS, $query);
+//        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+//        curl_setopt($curl, CURLOPT_HEADER, 1);
+//        curl_setopt($curl, CURLOPT_HTTPHEADER, ['Expect:']);
+//        $body = curl_exec($curl);
+//
+//        return $body;
+//    }
+//
+//    /**
+//     * Parse string with headers
+//     *
+//     * @param string $headersStr
+//     *
+//     * @return array
+//     */
+//    protected function parseHeaders($headersStr)
+//    {
+//        $result = [];
+//
+//        $arrRequests = explode("\r\n\r\n", $headersStr);
+//
+//        for ($index = 0; $index < count($arrRequests) - 1; $index++) {
+//
+//            foreach (explode("\r\n", $arrRequests[$index]) as $i => $line) {
+//                if ($i === 0)
+//                    $result[$index]['http_code'] = $line;
+//                else {
+//                    list ($key, $value) = explode(': ', $line);
+//                    $result[$index][mb_strtolower($key)] = $value;
+//                }
+//            }
+//        }
+//
+//        return $result;
+//    }
 
     /**
      * Get URL
@@ -188,14 +188,15 @@ class YandexKassa implements PayProtocol
      */
     public function getPaymentUrl($params)
     {
-        $response = $this->sendPostRequest($this->getEshopUrl(), array_merge([
-            'shopId' => $this->getShopId(),
-            'scid'   => $this->getScid(),
-        ], $params));
-
-        $headers = $this->parseHeaders($response);
-
-        return isset($headers[0]) && isset($headers[0]['location']) ? $headers[0]['location'] : null;
+        return $this->getEshopUrl();
+//        $response = $this->sendPostRequest($this->getEshopUrl(), array_merge([
+//            'shopId' => $this->getShopId(),
+//            'scid'   => $this->getScid(),
+//        ], $params));
+//
+//        $headers = $this->parseHeaders($response);
+//
+//        return isset($headers[0]) && isset($headers[0]['location']) ? $headers[0]['location'] : null;
     }
 
     /**
