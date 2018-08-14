@@ -29,12 +29,8 @@
   "require": {
     "illuminate/support": "5.2.* || 5.3.* || 5.4.* || 5.5.*",
     "professionalweb/payment-laravel": "dev-devide-drivers",
-    "yandex-money/yandex-checkout-sdk-php": "1.0.*"
-  },
-  "require-dev": {
-    "codeception/codeception": "*",
-    "satooshi/php-coveralls": "*",
-    "codeclimate/php-test-reporter": "*"
+    "yandex-money/yandex-checkout-sdk-php": "1.0.*",
+    "alcohol/iso4217": "*"
   },
   "config": {
     "process-timeout": 1800
