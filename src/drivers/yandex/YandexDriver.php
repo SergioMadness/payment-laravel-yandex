@@ -1,5 +1,6 @@
 <?php namespace professionalweb\payment\drivers\yandex;
 
+use Alcohol\ISO4217;
 use Illuminate\Support\Arr;
 use professionalweb\payment\Form;
 use Illuminate\Contracts\Support\Arrayable;
@@ -92,6 +93,11 @@ class YandexDriver implements PayService, YandexService
                                    $extraParams = [],
                                    $receipt = null)
     {
+        if (is_numeric($currency)) {
+            $cur = (new ISO4217())->getByNumeric($currency);
+            $currency = $cur['alpha3'];
+        }
+
         $params = [
             'amount'              => [
                 'value'    => $amount,
