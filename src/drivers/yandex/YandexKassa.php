@@ -320,6 +320,9 @@ class YandexKassa implements PayProtocol
      */
     public function prepareParams($params)
     {
-        return $params;
+        return array_merge([
+            'shopId' => $this->getShopId(),
+            'scid'   => $this->getScid(),
+        ], $params);
     }
 }
