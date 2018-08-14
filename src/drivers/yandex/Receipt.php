@@ -49,13 +49,12 @@ class Receipt extends \professionalweb\payment\drivers\receipt\Receipt
             return $item->toArray();
         }, $this->getItems());
 
-        $contact = $this->getContact();
         $result = [
-            filter_var($contact, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone' => $contact,
-            'items'                                                         => $items,
+            'customerContact' => $this->getContact(),
+            'items'           => $items,
         ];
         if (($taxSystem = $this->getTaxSystem()) !== null) {
-            $result['tax_system_code'] = $taxSystem;
+            $result['taxSystem'] = $taxSystem;
         }
 
         return $result;

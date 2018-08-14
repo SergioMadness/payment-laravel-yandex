@@ -27,34 +27,17 @@ class YandexProvider extends ServiceProvider
     {
         $this->app->bind(YandexService::class, function ($app) {
             return (new YandexDriver(config('payment.yandex')))->setTransport(
-                new YandexKassa(
-                    config('payment.yandex.merchantId'),
-                    config('payment.yandex.secretKey')
-                )
+                new YandexKassa(config('payment.yandex.merchantId'), config('payment.yandex.scid'), config('payment.yandex.secretKey'), config('payment.yandex.isTest') ? YandexKassa::ESHOP_URL_DEMO : YandexKassa::ESHOP_URL_PROD)
             );
         });
         $this->app->bind(PayService::class, function ($app) {
             return (new YandexDriver(config('payment.yandex')))->setTransport(
-                new YandexKassa(
-                    config('payment.yandex.merchantId'),
-                    config('payment.yandex.secretKey')
-                )
+                new YandexKassa(config('payment.yandex.merchantId'), config('payment.yandex.scid'), config('payment.yandex.secretKey'), config('payment.yandex.isTest') ? YandexKassa::ESHOP_URL_DEMO : YandexKassa::ESHOP_URL_PROD)
             );
         });
         $this->app->bind(YandexDriver::class, function ($app) {
             return (new YandexDriver(config('payment.yandex')))->setTransport(
-                new YandexKassa(
-                    config('payment.yandex.merchantId'),
-                    config('payment.yandex.secretKey')
-                )
-            );
-        });
-        $this->app->bind('\professionalweb\payment\Yandex', function ($app) {
-            return (new YandexDriver(config('payment.yandex')))->setTransport(
-                new YandexKassa(
-                    config('payment.yandex.merchantId'),
-                    config('payment.yandex.secretKey')
-                )
+                new YandexKassa(config('payment.yandex.merchantId'), config('payment.yandex.scid'), config('payment.yandex.secretKey'), config('payment.yandex.isTest') ? YandexKassa::ESHOP_URL_DEMO : YandexKassa::ESHOP_URL_PROD)
             );
         });
     }

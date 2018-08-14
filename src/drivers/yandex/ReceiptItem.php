@@ -44,13 +44,13 @@ class ReceiptItem extends \professionalweb\payment\drivers\receipt\ReceiptItem
     public function toArray()
     {
         return [
-            'quantity'    => (string)$this->getQty(),
-            'amount'      => [
-                'value'    => (float)$this->getPrice(),
-                'currency' => $this->getCurrency(),
+            'quantity' => (int)$this->getQty(),
+            'price' => [
+                'amount' => (float)$this->getPrice(),
             ],
-            'vat_code'    => $this->getTax(),
-            'description' => mb_substr($this->getName(), 0, 128),
+            'currency' => $this->getCurrency(),
+            'tax' => $this->getTax(),
+            'text' => mb_substr($this->getName(), 0, 128),
         ];
     }
 }

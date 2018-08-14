@@ -1,18 +1,14 @@
 <?php namespace professionalweb\payment\drivers\yandex;
 
-use Illuminate\Support\Arr;
-use professionalweb\payment\Form;
 use Illuminate\Contracts\Support\Arrayable;
 use professionalweb\payment\contracts\PayService;
 use professionalweb\payment\contracts\PayProtocol;
-use professionalweb\payment\contracts\Form as IForm;
-use professionalweb\payment\interfaces\YandexService;
 
 /**
  * Payment service. Pay, Check, etc
- * @package professionalweb\payment\drivers\yandex
+ * @package AlpinaDigital\Services
  */
-class YandexDriver implements PayService, YandexService
+class YandexDriver implements PayService
 {
     /**
      * All right
@@ -92,31 +88,19 @@ class YandexDriver implements PayService, YandexService
                                    $extraParams = [],
                                    $receipt = null)
     {
-        $params = [
-            'amount'              => [
-                'value'    => $amount,
-                'currency' => $currency,
-            ],
-            'metadata'            => [
-                'orderId'   => $orderId,
-                'paymentId' => $paymentId,
-            ],
-            'confirmation'        => [
-                'type'       => 'redirect',
-                'return_url' => $successReturnUrl,
-            ],
-            'payment_method_data' => [
-                'type' => $this->getPaymentMethod($paymentType),
-            ],
-            'description'         => $description,
-            'capture'             => true,
-        ];
         if ($receipt instanceof Arrayable) {
-            $params['receipt'] = (string)$receipt;
+            $extraParams['ym_merchant_receipt'] = (string)$receipt;
         }
-        $params = array_merge($params, $extraParams);
 
-        return $this->getTransport()->getPaymentUrl($params);
+        return $this->getTransport()->getPaymentUrl(array_merge([
+            'orderNumber'    => $orderId,
+            'customerNumber' => $orderId,
+            'sum'            => $amount,
+            'PaymentId'      => $paymentId,
+            'shopSuccessURL' => $successReturnUrl,
+            'shopDefaultUrl' => $successReturnUrl,
+            'shopFailURL'    => $failReturnUrl,
+        ], $extraParams));
     }
 
     /**
@@ -180,7 +164,7 @@ class YandexDriver implements PayService, YandexService
      */
     public function getResponseParam($name, $default = '')
     {
-        return Arr::get($this->response['object'] ?? [], $name, $default);
+        return isset($this->response[$name]) ? $this->response[$name] : $default;
     }
 
     /**
@@ -190,7 +174,7 @@ class YandexDriver implements PayService, YandexService
      */
     public function getOrderId()
     {
-        return $this->getResponseParam('metadata.orderId');
+        return $this->getResponseParam('orderNumber');
     }
 
     /**
@@ -210,7 +194,7 @@ class YandexDriver implements PayService, YandexService
      */
     public function isSuccess()
     {
-        return $this->getResponseParam('status') === 'succeeded';
+        return $this->getResponseParam('action', 'cancelOrder') !== 'cancelOrder';
     }
 
     /**
@@ -220,7 +204,7 @@ class YandexDriver implements PayService, YandexService
      */
     public function getTransactionId()
     {
-        return $this->getResponseParam('id');
+        return $this->getResponseParam('invoiceId');
     }
 
     /**
@@ -230,7 +214,7 @@ class YandexDriver implements PayService, YandexService
      */
     public function getAmount()
     {
-        return $this->getResponseParam('amount.value');
+        return $this->getResponseParam('orderSumAmount');
     }
 
     /**
@@ -250,7 +234,7 @@ class YandexDriver implements PayService, YandexService
      */
     public function getProvider()
     {
-        return $this->getResponseParam('payment_method.type');
+        return $this->getResponseParam('paymentType');
     }
 
     /**
@@ -260,7 +244,7 @@ class YandexDriver implements PayService, YandexService
      */
     public function getPan()
     {
-        return $this->getResponseParam('payment_method.card.first6') . '******' . $this->getResponseParam('payment_method.card.last4');
+        return $this->getResponseParam('cdd_pan_mask');
     }
 
     /**
@@ -354,37 +338,6 @@ class YandexDriver implements PayService, YandexService
     }
 
     /**
-     * Get payment id
-     *
-     * @return string
-     */
-    public function getPaymentId()
-    {
-        return $this->getResponseParam('metadata.paymentId');
-    }
-
-    /**
-     * Get payment type for Yandex by constant value
-     *
-     * @param string $type
-     *
-     * @return string
-     */
-    public function getPaymentMethod($type)
-    {
-        $map = [
-            self::PAYMENT_TYPE_CARD         => 'bank_card',
-            self::PAYMENT_TYPE_CASH         => 'cash',
-            self::PAYMENT_TYPE_MOBILE       => 'mobile_balance',
-            self::PAYMENT_TYPE_QIWI         => 'qiwi',
-            self::PAYMENT_TYPE_SBERBANK     => 'sberbank',
-            self::PAYMENT_TYPE_YANDEX_MONEY => 'yandex_money',
-        ];
-
-        return isset($map[$type]) ? $map[$type] : $map[self::PAYMENT_TYPE_CARD];
-    }
-
-    /**
      * Payment system need form
      * You can not get url for redirect
      *
@@ -409,7 +362,7 @@ class YandexDriver implements PayService, YandexService
      * @param array     $extraParams
      * @param Arrayable $receipt
      *
-     * @return IForm
+     * @return string
      */
     public function getPaymentForm($orderId,
                                    $paymentId,
@@ -422,6 +375,16 @@ class YandexDriver implements PayService, YandexService
                                    $extraParams = [],
                                    $receipt = null)
     {
-        return new Form();
+        // TODO: Implement getPaymentForm() method.
+    }
+
+    /**
+     * Get payment id
+     *
+     * @return string
+     */
+    public function getPaymentId()
+    {
+        // TODO: Implement getPaymentId() method.
     }
 }
