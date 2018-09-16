@@ -82,7 +82,7 @@ class YandexKassa implements PayProtocol
      */
     public function getPaymentUrl($params)
     {
-        $response = $this->getClient()->createPayment($params);
+        $response = $this->getClient()->createPayment($this->prepareParams($params));
 
         return isset($response['confirmation']) && isset($response['confirmation']['confirmation_url']) ?
             $response['confirmation']['confirmation_url'] : '';
@@ -175,5 +175,17 @@ class YandexKassa implements PayProtocol
         }
 
         return $this->client;
+    }
+
+    /**
+     * Prepare parameters
+     *
+     * @param array $params
+     *
+     * @return array
+     */
+    public function prepareParams($params)
+    {
+        return $params;
     }
 }

@@ -2,6 +2,8 @@
 
 use Illuminate\Support\ServiceProvider;
 use professionalweb\payment\contracts\PayService;
+use professionalweb\payment\contracts\PaymentFacade;
+use professionalweb\payment\interfaces\YandexService;
 use professionalweb\payment\drivers\yandex\YandexKassa;
 use professionalweb\payment\drivers\yandex\YandexDriver;
 
@@ -11,12 +13,10 @@ use professionalweb\payment\drivers\yandex\YandexDriver;
  */
 class YandexProvider extends ServiceProvider
 {
-    /**
-     * Indicates if loading of the provider is deferred.
-     *
-     * @var bool
-     */
-    protected $defer = true;
+    public function boot()
+    {
+        app(PaymentFacade::class)->registerDriver(YandexService::PAYMENT_YANDEX, YandexService::class);
+    }
 
     /**
      * Bind two classes
@@ -25,6 +25,14 @@ class YandexProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->bind(YandexService::class, function ($app) {
+            return (new YandexDriver(config('payment.yandex')))->setTransport(
+                new YandexKassa(
+                    config('payment.yandex.merchantId'),
+                    config('payment.yandex.secretKey')
+                )
+            );
+        });
         $this->app->bind(PayService::class, function ($app) {
             return (new YandexDriver(config('payment.yandex')))->setTransport(
                 new YandexKassa(
@@ -49,16 +57,5 @@ class YandexProvider extends ServiceProvider
                 )
             );
         });
-        $this->app->bind('\Payment', Payment::class);
-    }
-
-    /**
-     * Get the services provided by the provider.
-     *
-     * @return array
-     */
-    public function provides()
-    {
-        return [PayService::class, YandexDriver::class, '\professionalweb\payment\Yandex', '\Payment'];
     }
 }
