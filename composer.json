@@ -39,5 +39,12 @@
     "psr-4": {
       "professionalweb\\payment\\": "src/"
     }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "professionalweb\\payment\\YandexProvider"
+      ]
+    }
   }
 }
