@@ -10,6 +10,7 @@ use professionalweb\payment\contracts\PayService;
 use professionalweb\payment\contracts\PayProtocol;
 use professionalweb\payment\contracts\Form as IForm;
 use professionalweb\payment\interfaces\YandexService;
+use professionalweb\payment\models\PayServiceOption;
 
 /**
  * Payment service. Pay, Check, etc
@@ -244,9 +245,9 @@ class YandexDriver implements PayService, YandexService
     /**
      * Get error code
      *
-     * @return int
+     * @return string
      */
-    public function getErrorCode(): int
+    public function getErrorCode(): string
     {
         return $this->getResponseParam('action', 'cancelOrder') !== 'cancelOrder' ? 0 : 1;
     }
@@ -440,6 +441,9 @@ class YandexDriver implements PayService, YandexService
      */
     public function getOptions(): array
     {
-        // TODO: Implement getOptions() method.
+        return [
+            (new PayServiceOption())->setAlias('merchantId')->setLabel('ShopId')->setType(PayServiceOption::TYPE_STRING),
+            (new PayServiceOption())->setAlias('secretKey')->setLabel('SecretKey')->setType(PayServiceOption::TYPE_STRING),
+        ];
     }
 }
