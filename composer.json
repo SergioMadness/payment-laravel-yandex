@@ -28,7 +28,7 @@
   },
   "require": {
     "illuminate/support": "5.*",
-    "professionalweb/payment-laravel": "improvement/interface-add-options",
+    "professionalweb/payment-laravel": "dev-improvement/interface-add-options",
     "yandex-money/yandex-checkout-sdk-php": "1.0.*",
     "alcohol/iso4217": "*"
   },
