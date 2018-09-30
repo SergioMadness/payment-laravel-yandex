@@ -429,7 +429,7 @@ class YandexDriver implements PayService, YandexService
                                    string $failReturnUrl = '',
                                    string $description = '',
                                    array $extraParams = [],
-                                   Receipt $receipt = null): string
+                                   Receipt $receipt = null): IForm
     {
         return new Form();
     }
