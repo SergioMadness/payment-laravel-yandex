@@ -28,7 +28,7 @@
   },
   "require": {
     "illuminate/support": "5.*",
-    "professionalweb/payment-laravel": "^3.0",
+    "professionalweb/payment-laravel": "^4.0",
     "yandex-money/yandex-checkout-sdk-php": "1.0.*",
     "alcohol/iso4217": "*"
   },

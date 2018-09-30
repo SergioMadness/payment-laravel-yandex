@@ -1,40 +1,42 @@
 <?php namespace professionalweb\payment\drivers\yandex;
 
+use professionalweb\payment\drivers\receipt\Receipt as IReceipt;
+
 /**
  * Receipt
  * @package professionalweb\payment\drivers\yandex
  */
-class Receipt extends \professionalweb\payment\drivers\receipt\Receipt
+class Receipt extends IReceipt
 {
     /**
      * общая СН
      */
-    const TAX_SYSTEM_COMMON = 1;
+    public const TAX_SYSTEM_COMMON = 1;
 
     /**
      * упрощенная СН (доходы)
      */
-    const TAX_SYSTEM_SIMPLE_INCOME = 2;
+    public const TAX_SYSTEM_SIMPLE_INCOME = 2;
 
     /**
      * упрощенная СН (доходы минус расходы)
      */
-    const TAX_SYSTEM_SIMPLE_NO_OUTCOME = 3;
+    public const TAX_SYSTEM_SIMPLE_NO_OUTCOME = 3;
 
     /**
      * единый налог на вмененный доход
      */
-    const TAX_SYSTEM_SIMPLE_UNIFIED = 4;
+    public const TAX_SYSTEM_SIMPLE_UNIFIED = 4;
 
     /**
      * единый сельскохозяйственный налог
      */
-    const TAX_SYSTEM_SIMPLE_AGRO = 5;
+    public const TAX_SYSTEM_SIMPLE_AGRO = 5;
 
     /**
      * патентная СН
      */
-    const TAX_SYSTEM_SIMPLE_PATENT = 5;
+    public const TAX_SYSTEM_SIMPLE_PATENT = 5;
 
 
     /**
@@ -66,7 +68,7 @@ class Receipt extends \professionalweb\payment\drivers\receipt\Receipt
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return json_encode($this->toArray());
     }

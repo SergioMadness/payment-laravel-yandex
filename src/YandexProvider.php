@@ -13,7 +13,7 @@ use professionalweb\payment\drivers\yandex\YandexDriver;
  */
 class YandexProvider extends ServiceProvider
 {
-    public function boot()
+    public function boot(): void
     {
         app(PaymentFacade::class)->registerDriver(YandexService::PAYMENT_YANDEX, YandexService::class);
     }
@@ -23,7 +23,7 @@ class YandexProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->app->bind(YandexService::class, function ($app) {
             return (new YandexDriver(config('payment.yandex')))->setTransport(

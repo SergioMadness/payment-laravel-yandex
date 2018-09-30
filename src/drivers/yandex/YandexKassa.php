@@ -1,7 +1,6 @@
 <?php namespace professionalweb\payment\drivers\yandex;
 
 use YandexCheckout\Client;
-use Illuminate\Http\Response;
 use professionalweb\payment\contracts\PayProtocol;
 
 /**
@@ -33,10 +32,10 @@ class YandexKassa implements PayProtocol
     /**
      * Yandex.Kassa constructor.
      *
-     * @param int $shopId
-     * @param int $shopSecret
+     * @param int    $shopId
+     * @param string $shopSecret
      */
-    public function __construct($shopId = null, $shopSecret = null)
+    public function __construct(?int $shopId = null, ?string $shopSecret = null)
     {
         $this->setShopId($shopId)->setShopPassword($shopSecret);
     }
@@ -44,7 +43,7 @@ class YandexKassa implements PayProtocol
     /**
      * @return int
      */
-    public function getShopId()
+    public function getShopId(): ?int
     {
         return $this->shopId;
     }
@@ -56,7 +55,7 @@ class YandexKassa implements PayProtocol
      *
      * @return $this
      */
-    public function setShopId($shopId)
+    public function setShopId(?int $shopId): self
     {
         $this->shopId = $shopId;
 
@@ -80,12 +79,11 @@ class YandexKassa implements PayProtocol
      * @throws \YandexCheckout\Common\Exceptions\TooManyRequestsException
      * @throws \YandexCheckout\Common\Exceptions\UnauthorizedException
      */
-    public function getPaymentUrl($params)
+    public function getPaymentUrl(array $params): string
     {
         $response = $this->getClient()->createPayment($this->prepareParams($params));
 
-        return isset($response['confirmation']) && isset($response['confirmation']['confirmation_url']) ?
-            $response['confirmation']['confirmation_url'] : '';
+        return $response['confirmation']['confirmation_url'] ?? '';
     }
 
     /**
@@ -93,11 +91,11 @@ class YandexKassa implements PayProtocol
      *
      * @param mixed $params
      *
-     * @return int
+     * @return bool
      */
-    public function validate($params)
+    public function validate(array $params): bool
     {
-        return 0;
+        return false;
     }
 
 
@@ -106,7 +104,7 @@ class YandexKassa implements PayProtocol
      *
      * @return mixed
      */
-    public function getPaymentId()
+    public function getPaymentId(): string
     {
         // TODO: Implement getPaymentId() method.
     }
@@ -116,7 +114,7 @@ class YandexKassa implements PayProtocol
      *
      * @return string
      */
-    public function getShopPassword()
+    public function getShopPassword(): ?string
     {
         return $this->shopSecret;
     }
@@ -128,7 +126,7 @@ class YandexKassa implements PayProtocol
      *
      * @return $this;
      */
-    public function setShopPassword($shopSecret)
+    public function setShopPassword(?string $shopSecret): self
     {
         $this->shopSecret = $shopSecret;
 
@@ -142,11 +140,11 @@ class YandexKassa implements PayProtocol
      * @param mixed $requestData
      * @param int   $errorCode
      *
-     * @return Response
+     * @return string
      */
-    public function getNotificationResponse($requestData, $errorCode)
+    public function getNotificationResponse($requestData, $errorCode): string
     {
-        return \response('ok');
+        return 'ok';
     }
 
     /**
@@ -155,11 +153,11 @@ class YandexKassa implements PayProtocol
      * @param array $requestData
      * @param int   $errorCode
      *
-     * @return Response
+     * @return string
      */
-    public function getCheckResponse($requestData, $errorCode)
+    public function getCheckResponse($requestData, $errorCode): string
     {
-        return \response('ok');
+        return 'ok';
     }
 
     /**
@@ -167,7 +165,7 @@ class YandexKassa implements PayProtocol
      *
      * @return Client
      */
-    protected function getClient()
+    protected function getClient(): Client
     {
         if ($this->client === null) {
             $this->client = new Client();
@@ -184,7 +182,7 @@ class YandexKassa implements PayProtocol
      *
      * @return array
      */
-    public function prepareParams($params)
+    public function prepareParams(array $params): array
     {
         return $params;
     }

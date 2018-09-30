@@ -2,5 +2,5 @@
 
 interface YandexService
 {
-    const PAYMENT_YANDEX = 'yandex';
+    public const PAYMENT_YANDEX = 'yandex';
 }
