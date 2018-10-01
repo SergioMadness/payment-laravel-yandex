@@ -1,15 +1,19 @@
 <?php namespace professionalweb\payment\drivers\yandex;
 
+use Alcohol\ISO4217;
 use Illuminate\Support\Arr;
+use professionalweb\payment\Form;
 use Illuminate\Contracts\Support\Arrayable;
 use professionalweb\payment\contracts\PayService;
 use professionalweb\payment\contracts\PayProtocol;
+use professionalweb\payment\contracts\Form as IForm;
+use professionalweb\payment\interfaces\YandexService;
 
 /**
  * Payment service. Pay, Check, etc
- * @package AlpinaDigital\Services
+ * @package professionalweb\payment\drivers\yandex
  */
-class YandexDriver implements PayService
+class YandexDriver implements PayService, YandexService
 {
     /**
      * All right
@@ -89,6 +93,12 @@ class YandexDriver implements PayService
                                    $extraParams = [],
                                    $receipt = null)
     {
+        if (is_numeric($currency)) {
+            $cur = (new ISO4217())->getByNumeric($currency);
+            $currency = $cur['alpha3'];
+        }
+
+        $paymentType = $this->getPaymentMethod($paymentType);
         $params = [
             'amount'              => [
                 'value'    => $amount,
@@ -103,11 +113,14 @@ class YandexDriver implements PayService
                 'return_url' => $successReturnUrl,
             ],
             'payment_method_data' => [
-                'type' => $this->getPaymentMethod($paymentType),
+                'type' => $paymentType,
             ],
             'description'         => $description,
             'capture'             => true,
         ];
+        if ($paymentType === self::PAYMENT_TYPE_QIWI && isset($extraParams['phone'])) {
+            $params['payment_method_data']['phone'] = $extraParams['phone'];
+        }
         if ($receipt instanceof Arrayable) {
             $params['receipt'] = (string)$receipt;
         }
@@ -379,5 +392,46 @@ class YandexDriver implements PayService
         ];
 
         return isset($map[$type]) ? $map[$type] : $map[self::PAYMENT_TYPE_CARD];
+    }
+
+    /**
+     * Payment system need form
+     * You can not get url for redirect
+     *
+     * @return bool
+     */
+    public function needForm()
+    {
+        return false;
+    }
+
+    /**
+     * Generate payment form
+     *
+     * @param int       $orderId
+     * @param int       $paymentId
+     * @param float     $amount
+     * @param string    $currency
+     * @param string    $paymentType
+     * @param string    $successReturnUrl
+     * @param string    $failReturnUrl
+     * @param string    $description
+     * @param array     $extraParams
+     * @param Arrayable $receipt
+     *
+     * @return IForm
+     */
+    public function getPaymentForm($orderId,
+                                   $paymentId,
+                                   $amount,
+                                   $currency = self::CURRENCY_RUR,
+                                   $paymentType = self::PAYMENT_TYPE_CARD,
+                                   $successReturnUrl = '',
+                                   $failReturnUrl = '',
+                                   $description = '',
+                                   $extraParams = [],
+                                   $receipt = null)
+    {
+        return new Form();
     }
 }
