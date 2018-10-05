@@ -48,7 +48,7 @@ class ReceiptItem extends IReceiptItem
         return [
             'quantity'    => (string)$this->getQty(),
             'amount'      => [
-                'value'    => (float)$this->getPrice(),
+                'value'    => $this->getPrice(),
                 'currency' => $this->getCurrency(),
             ],
             'vat_code'    => $this->getTax(),
