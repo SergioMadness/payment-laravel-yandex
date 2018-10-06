@@ -26,34 +26,34 @@ class YandexProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(YandexService::class, function ($app) {
-            return (new YandexDriver(config('payment.yandex')))->setTransport(
+            return (new YandexDriver(config('payment.yandex', [])))->setTransport(
                 new YandexKassa(
-                    config('payment.yandex.merchantId'),
-                    config('payment.yandex.secretKey')
+                    config('payment.yandex.merchantId', ''),
+                    config('payment.yandex.secretKey', '')
                 )
             );
         });
         $this->app->bind(PayService::class, function ($app) {
-            return (new YandexDriver(config('payment.yandex')))->setTransport(
+            return (new YandexDriver(config('payment.yandex', [])))->setTransport(
                 new YandexKassa(
-                    config('payment.yandex.merchantId'),
-                    config('payment.yandex.secretKey')
+                    config('payment.yandex.merchantId', ''),
+                    config('payment.yandex.secretKey', '')
                 )
             );
         });
         $this->app->bind(YandexDriver::class, function ($app) {
-            return (new YandexDriver(config('payment.yandex')))->setTransport(
+            return (new YandexDriver(config('payment.yandex', [])))->setTransport(
                 new YandexKassa(
-                    config('payment.yandex.merchantId'),
-                    config('payment.yandex.secretKey')
+                    config('payment.yandex.merchantId', ''),
+                    config('payment.yandex.secretKey', '')
                 )
             );
         });
         $this->app->bind('\professionalweb\payment\Yandex', function ($app) {
-            return (new YandexDriver(config('payment.yandex')))->setTransport(
+            return (new YandexDriver(config('payment.yandex', [])))->setTransport(
                 new YandexKassa(
-                    config('payment.yandex.merchantId'),
-                    config('payment.yandex.secretKey')
+                    config('payment.yandex.merchantId', ''),
+                    config('payment.yandex.secretKey', '')
                 )
             );
         });
