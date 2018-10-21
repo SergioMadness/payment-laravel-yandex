@@ -1,9 +1,9 @@
 Payment driver for [payment-laravel](https://github.com/SergioMadness/payment-laravel) to pay through Kassa.Yandex
 ====
 
-[![Latest Stable Version](https://poser.pugx.org/professionalweb/payment-laravel-yandex/v/stable)](https://packagist.org/packages/professionalweb/payment-laravel)
-[![License](https://poser.pugx.org/professionalweb/payment-laravel-yandex/license)](https://packagist.org/packages/professionalweb/payment-laravel)
-[![Latest Unstable Version](https://poser.pugx.org/professionalweb/payment-laravel-yandex/v/unstable)](https://packagist.org/packages/professionalweb/payment-laravel)
+[![Latest Stable Version](https://poser.pugx.org/professionalweb/payment-laravel-yandex/v/stable)](https://packagist.org/packages/professionalweb/payment-laravel-yandex)
+[![License](https://poser.pugx.org/professionalweb/payment-laravel-yandex/license)](https://packagist.org/packages/professionalweb/payment-laravel-yandex)
+[![Latest Unstable Version](https://poser.pugx.org/professionalweb/payment-laravel-yandex/v/unstable)](https://packagist.org/packages/professionalweb/payment-laravel-yandex)
 
 
 Requirements
