@@ -11,7 +11,7 @@
     "kassa.yandex",
     "laravel"
   ],
-  "minimum-stability": "stable",
+  "minimum-stability": "dev",
   "type": "library",
   "license": "MIT",
   "authors": [
