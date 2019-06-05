@@ -101,6 +101,7 @@ class YandexDriver implements PayService, YandexService
             $currency = $cur['alpha3'];
         }
 
+        $paymentType = $this->getPaymentMethod($paymentType);
         $params = [
             'amount'              => [
                 'value'    => $amount,
@@ -115,11 +116,14 @@ class YandexDriver implements PayService, YandexService
                 'return_url' => $successReturnUrl,
             ],
             'payment_method_data' => [
-                'type' => $this->getPaymentMethod($paymentType),
+                'type' => $paymentType,
             ],
             'description'         => $description,
             'capture'             => true,
         ];
+        if ($paymentType === self::PAYMENT_TYPE_QIWI && isset($extraParams['phone'])) {
+            $params['payment_method_data']['phone'] = $extraParams['phone'];
+        }
         if ($receipt instanceof Arrayable) {
             $params['receipt'] = (string)$receipt;
         }
@@ -388,6 +392,7 @@ class YandexDriver implements PayService, YandexService
             self::PAYMENT_TYPE_QIWI         => 'qiwi',
             self::PAYMENT_TYPE_SBERBANK     => 'sberbank',
             self::PAYMENT_TYPE_YANDEX_MONEY => 'yandex_money',
+            self::PAYMENT_TYPE_ALFABANK     => 'alfabank',
         ];
 
         return $map[$type] ?? $map[self::PAYMENT_TYPE_CARD];
