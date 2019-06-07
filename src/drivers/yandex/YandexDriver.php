@@ -1,22 +1,23 @@
 <?php namespace professionalweb\payment\drivers\yandex;
 
 use Alcohol\ISO4217;
-use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
-use professionalweb\payment\contracts\Receipt;
+use Illuminate\Http\Response;
 use professionalweb\payment\Form;
 use Illuminate\Contracts\Support\Arrayable;
+use professionalweb\payment\contracts\Receipt;
 use professionalweb\payment\contracts\PayService;
 use professionalweb\payment\contracts\PayProtocol;
 use professionalweb\payment\contracts\Form as IForm;
-use professionalweb\payment\interfaces\YandexService;
 use professionalweb\payment\models\PayServiceOption;
+use professionalweb\payment\interfaces\YandexService;
+use professionalweb\payment\contracts\recurring\RecurringPayment;
 
 /**
  * Payment service. Pay, Check, etc
  * @package professionalweb\payment\drivers\yandex
  */
-class YandexDriver implements PayService, YandexService
+class YandexDriver implements PayService, YandexService, RecurringPayment
 {
     /**
      * All right
@@ -63,6 +64,13 @@ class YandexDriver implements PayService, YandexService
      * @var int
      */
     private $lastError = 0;
+
+    /**
+     * Flag Yandex need to remember payment requisites
+     *
+     * @var bool
+     */
+    private $needRecurring = false;
 
     public function __construct($config)
     {
@@ -450,5 +458,27 @@ class YandexDriver implements PayService, YandexService
             (new PayServiceOption())->setAlias('merchantId')->setLabel('ShopId')->setType(PayServiceOption::TYPE_STRING),
             (new PayServiceOption())->setAlias('secretKey')->setLabel('SecretKey')->setType(PayServiceOption::TYPE_STRING),
         ];
+    }
+
+    /**
+     * Get payment token
+     *
+     * @return string
+     */
+    public function getRecurringPayment(): string
+    {
+        return $this->getResponseParam('payment_method.id');
+    }
+
+    /**
+     * Remember payment fo recurring payments
+     *
+     * @return RecurringPayment
+     */
+    public function makeRecurring(): RecurringPayment
+    {
+        $this->needRecurring = true;
+
+        return $this;
     }
 }
