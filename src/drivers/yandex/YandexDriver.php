@@ -72,6 +72,11 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      */
     private $needRecurring = false;
 
+    /**
+     * @var string
+     */
+    private $userId;
+
     public function __construct($config)
     {
         $this->setConfig($config);
@@ -131,6 +136,9 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
         ];
         if ($paymentType === self::PAYMENT_TYPE_QIWI && isset($extraParams['phone'])) {
             $params['payment_method_data']['phone'] = $extraParams['phone'];
+        }
+        if ($this->needRecurring()) {
+            $params['save_payment_method'] = true;
         }
         if ($receipt instanceof Arrayable) {
             $params['receipt'] = (string)$receipt;
@@ -480,5 +488,39 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
         $this->needRecurring = true;
 
         return $this;
+    }
+
+    /**
+     * Check payment need to be recurrent
+     *
+     * @return bool
+     */
+    public function needRecurring(): bool
+    {
+        return $this->needRecurring;
+    }
+
+    /**
+     * Set user id payment will be assigned
+     *
+     * @param string $id
+     *
+     * @return RecurringPayment
+     */
+    public function setUserId(string $id): RecurringPayment
+    {
+        $this->userId = $id;
+
+        return $this;
+    }
+
+    /**
+     * Get user account id
+     *
+     * @return null|string
+     */
+    public function getUserId(): ?string
+    {
+        return $this->userId;
     }
 }
