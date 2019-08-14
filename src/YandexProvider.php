@@ -15,7 +15,7 @@ class YandexProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        app(PaymentFacade::class)->registerDriver(YandexService::PAYMENT_YANDEX, YandexService::class);
+        app(PaymentFacade::class)->registerDriver(YandexService::PAYMENT_YANDEX, YandexService::class, YandexDriver::getOptions());
     }
 
     /**
