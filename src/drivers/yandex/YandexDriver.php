@@ -460,7 +460,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      *
      * @return array
      */
-    public function getOptions(): array
+    public static function getOptions(): array
     {
         return [
             (new PayServiceOption())->setAlias('merchantId')->setLabel('ShopId')->setType(PayServiceOption::TYPE_STRING),
