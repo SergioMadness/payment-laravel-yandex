@@ -95,7 +95,7 @@ class YandexKassa implements PayProtocol
      */
     public function validate(array $params): bool
     {
-        return false;
+        return true;
     }
 
 

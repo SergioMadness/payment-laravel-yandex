@@ -157,7 +157,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      */
     public function validate(array $data): bool
     {
-        return ($this->lastError = $this->getTransport()->validate($data)) === 0;
+        return $this->getTransport()->validate($data);
     }
 
     /**
