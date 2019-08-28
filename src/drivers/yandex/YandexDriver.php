@@ -553,6 +553,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
             ],
             'payment_method_id' => $token,
             'description'       => $description,
+            'capture'           => true,
             'metadata'          => array_merge($extraParams, [
                 'AccountId' => $this->getUserId(),
                 'PaymentId' => $paymentId,
