@@ -555,8 +555,8 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
             'description'       => $description,
             'capture'           => true,
             'metadata'          => array_merge($extraParams, [
-                'AccountId' => $this->getUserId(),
-                'PaymentId' => $paymentId,
+                'accountId' => $this->getUserId(),
+                'paymentId' => $paymentId,
             ]),
         ];
 
