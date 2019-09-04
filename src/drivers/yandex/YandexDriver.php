@@ -544,7 +544,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      *
      * @return bool
      */
-    public function initPayment(string $token, string $paymentId, float $amount, string $description, string $currency = PayService::CURRENCY_RUR_ISO, array $extraParams = []): bool
+    public function initPayment(string $token, string $orderId, string $paymentId, float $amount, string $description, string $currency = PayService::CURRENCY_RUR_ISO, array $extraParams = []): bool
     {
         $params = [
             'amount'            => [
@@ -557,6 +557,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
             'metadata'          => array_merge($extraParams, [
                 'accountId' => $this->getUserId(),
                 'paymentId' => $paymentId,
+                'orderId'   => $orderId,
             ]),
         ];
 
