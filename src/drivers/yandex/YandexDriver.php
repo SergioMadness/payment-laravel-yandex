@@ -287,7 +287,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      */
     public function getProvider(): string
     {
-        return $this->getResponseParam('payment_method.type', '');
+        return $this->getPaymentMethod($this->getResponseParam('payment_method.type', ''), true);
     }
 
     /**
@@ -404,10 +404,11 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      * Get payment type for Yandex by constant value
      *
      * @param string $type
+     * @param bool   $reverse
      *
      * @return string
      */
-    public function getPaymentMethod(string $type): string
+    public function getPaymentMethod(string $type, bool $reverse = false): string
     {
         $map = [
             self::PAYMENT_TYPE_CARD         => 'bank_card',
@@ -419,7 +420,11 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
             self::PAYMENT_TYPE_ALFABANK     => 'alfabank',
         ];
 
-        return $map[$type] ?? $map[self::PAYMENT_TYPE_CARD];
+        if ($reverse) {
+            $map = array_reverse($map);
+        }
+
+        return $map[$type] ?? 'bank_card';
     }
 
     /**
