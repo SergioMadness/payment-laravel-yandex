@@ -1,40 +1,42 @@
 <?php namespace professionalweb\payment\drivers\yandex;
 
+use professionalweb\payment\drivers\receipt\ReceiptItem as IReceiptItem;
+
 /**
  * Receipt item
  * @package professionalweb\payment\drivers\yandex
  */
-class ReceiptItem extends \professionalweb\payment\drivers\receipt\ReceiptItem
+class ReceiptItem extends IReceiptItem
 {
     /**
      * без НДС
      */
-    const TAX_NO_VAT = 1;
+    public const TAX_NO_VAT = 1;
 
     /**
      * НДС по ставке 0%
      */
-    const TAX_VAT_0 = 2;
+    public const TAX_VAT_0 = 2;
 
     /**
      * НДС чека по ставке 10%
      */
-    const TAX_VAT_10 = 3;
+    public const TAX_VAT_10 = 3;
 
     /**
      * НДС чека по ставке 18%
      */
-    const TAX_VAT_18 = 4;
+    public const TAX_VAT_18 = 4;
 
     /**
      * НДС чека по расчетной ставке 10/110
      */
-    const TAX_VAT_110 = 5;
+    public const TAX_VAT_110 = 5;
 
     /**
      * НДС чека по расчетной ставке 18/118
      */
-    const TAX_VAT_118 = 6;
+    public const TAX_VAT_118 = 6;
 
     /**
      * Get the instance as an array.
@@ -46,7 +48,7 @@ class ReceiptItem extends \professionalweb\payment\drivers\receipt\ReceiptItem
         return [
             'quantity'    => (string)$this->getQty(),
             'amount'      => [
-                'value'    => (float)$this->getPrice(),
+                'value'    => $this->getPrice(),
                 'currency' => $this->getCurrency(),
             ],
             'vat_code'    => $this->getTax(),

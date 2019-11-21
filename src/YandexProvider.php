@@ -13,9 +13,9 @@ use professionalweb\payment\drivers\yandex\YandexDriver;
  */
 class YandexProvider extends ServiceProvider
 {
-    public function boot()
+    public function boot(): void
     {
-        app(PaymentFacade::class)->registerDriver(YandexService::PAYMENT_YANDEX, YandexService::class);
+        app(PaymentFacade::class)->registerDriver(YandexService::PAYMENT_YANDEX, YandexService::class, YandexDriver::getOptions());
     }
 
     /**
@@ -23,10 +23,10 @@ class YandexProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->app->bind(YandexService::class, function ($app) {
-            return (new YandexDriver(config('payment.yandex')))->setTransport(
+            return (new YandexDriver(config('payment.yandex', [])))->setTransport(
                 new YandexKassa(
                     config('payment.yandex.merchantId'),
                     config('payment.yandex.secretKey')
@@ -34,7 +34,7 @@ class YandexProvider extends ServiceProvider
             );
         });
         $this->app->bind(PayService::class, function ($app) {
-            return (new YandexDriver(config('payment.yandex')))->setTransport(
+            return (new YandexDriver(config('payment.yandex', [])))->setTransport(
                 new YandexKassa(
                     config('payment.yandex.merchantId'),
                     config('payment.yandex.secretKey')
@@ -42,7 +42,7 @@ class YandexProvider extends ServiceProvider
             );
         });
         $this->app->bind(YandexDriver::class, function ($app) {
-            return (new YandexDriver(config('payment.yandex')))->setTransport(
+            return (new YandexDriver(config('payment.yandex', [])))->setTransport(
                 new YandexKassa(
                     config('payment.yandex.merchantId'),
                     config('payment.yandex.secretKey')
@@ -50,7 +50,7 @@ class YandexProvider extends ServiceProvider
             );
         });
         $this->app->bind('\professionalweb\payment\Yandex', function ($app) {
-            return (new YandexDriver(config('payment.yandex')))->setTransport(
+            return (new YandexDriver(config('payment.yandex', [])))->setTransport(
                 new YandexKassa(
                     config('payment.yandex.merchantId'),
                     config('payment.yandex.secretKey')

@@ -22,13 +22,13 @@
   ],
   "support": {
     "email": "info@web-development.pw",
-    "issues": "https://github.com/SergioMadness/payonline/issues",
-    "wiki": "https://github.com/SergioMadness/payonline/wiki",
-    "source": "https://github.com/SergioMadness/payonline/releases"
+    "issues": "https://github.com/SergioMadness/payment-laravel-yandex/issues",
+    "wiki": "https://github.com/SergioMadness/payment-laravel-yandex/wiki",
+    "source": "https://github.com/SergioMadness/payment-laravel-yandex/releases"
   },
   "require": {
     "illuminate/support": "5.*",
-    "professionalweb/payment-laravel": "^3.0",
+    "professionalweb/payment-laravel": "3.1.x-dev",
     "yandex-money/yandex-checkout-sdk-php": "1.0.*",
     "alcohol/iso4217": "*"
   },
@@ -38,6 +38,16 @@
   "autoload": {
     "psr-4": {
       "professionalweb\\payment\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "professionalweb\\payment\\YandexProvider"
+      ]
+    },
+    "branch-alias": {
+      "dev-improvement/interface-options": "1.1.x-dev"
     }
   }
 }

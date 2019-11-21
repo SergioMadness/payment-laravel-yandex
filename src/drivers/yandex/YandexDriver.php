@@ -2,38 +2,42 @@
 
 use Alcohol\ISO4217;
 use Illuminate\Support\Arr;
+use Illuminate\Http\Response;
 use professionalweb\payment\Form;
 use Illuminate\Contracts\Support\Arrayable;
+use professionalweb\payment\contracts\Receipt;
 use professionalweb\payment\contracts\PayService;
 use professionalweb\payment\contracts\PayProtocol;
 use professionalweb\payment\contracts\Form as IForm;
+use professionalweb\payment\models\PayServiceOption;
 use professionalweb\payment\interfaces\YandexService;
+use professionalweb\payment\contracts\recurring\RecurringPayment;
 
 /**
  * Payment service. Pay, Check, etc
  * @package professionalweb\payment\drivers\yandex
  */
-class YandexDriver implements PayService, YandexService
+class YandexDriver implements PayService, YandexService, RecurringPayment
 {
     /**
      * All right
      */
-    const CODE_SUCCESS = 0;
+    public const CODE_SUCCESS = 0;
 
     /**
      * Signature is corrupted
      */
-    const CODE_CORRUPTED_SIGN = 1;
+    public const CODE_CORRUPTED_SIGN = 1;
 
     /**
      * Order not found
      */
-    const CODE_ORDER_NOT_FOUND = 100;
+    public const CODE_ORDER_NOT_FOUND = 100;
 
     /**
      * Can't understand request
      */
-    const CODE_BAD_PARAMS = 200;
+    public const CODE_BAD_PARAMS = 200;
 
     /**
      * Module config
@@ -61,6 +65,18 @@ class YandexDriver implements PayService, YandexService
      */
     private $lastError = 0;
 
+    /**
+     * Flag Yandex need to remember payment requisites
+     *
+     * @var bool
+     */
+    private $needRecurring = false;
+
+    /**
+     * @var string
+     */
+    private $userId;
+
     public function __construct($config)
     {
         $this->setConfig($config);
@@ -73,25 +89,25 @@ class YandexDriver implements PayService, YandexService
      * @param int        $paymentId
      * @param float      $amount
      * @param int|string $currency
+     * @param string     $paymentType
      * @param string     $successReturnUrl
      * @param string     $failReturnUrl
      * @param string     $description
      * @param array      $extraParams
-     * @param Arrayable  $receipt
+     * @param Receipt    $receipt
      *
      * @return string
-     * @throws \Exception
      */
     public function getPaymentLink($orderId,
                                    $paymentId,
-                                   $amount,
-                                   $currency = self::CURRENCY_RUR_ISO,
-                                   $paymentType = self::PAYMENT_TYPE_CARD,
-                                   $successReturnUrl = '',
-                                   $failReturnUrl = '',
-                                   $description = '',
-                                   $extraParams = [],
-                                   $receipt = null)
+                                   float $amount,
+                                   string $currency = self::CURRENCY_RUR_ISO,
+                                   string $paymentType = self::PAYMENT_TYPE_CARD,
+                                   string $successReturnUrl = '',
+                                   string $failReturnUrl = '',
+                                   string $description = '',
+                                   array $extraParams = [],
+                                   Receipt $receipt = null): string
     {
         if (is_numeric($currency)) {
             $cur = (new ISO4217())->getByNumeric($currency);
@@ -99,27 +115,38 @@ class YandexDriver implements PayService, YandexService
         }
 
         $paymentType = $this->getPaymentMethod($paymentType);
-        $params = [
-            'amount'              => [
-                'value'    => $amount,
-                'currency' => $currency,
-            ],
-            'metadata'            => [
-                'orderId'   => $orderId,
-                'paymentId' => $paymentId,
-            ],
-            'confirmation'        => [
-                'type'       => 'redirect',
-                'return_url' => $successReturnUrl,
-            ],
-            'payment_method_data' => [
-                'type' => $paymentType,
-            ],
-            'description'         => $description,
-            'capture'             => true,
-        ];
+        if (isset($extraParams['token'])) {
+            if ($this->initPayment($extraParams['token'], $paymentId, $amount, $description, $currency, $extraParams)) {
+                return $successReturnUrl;
+            }
+
+            return $failReturnUrl;
+        } else {
+            $params = [
+                'amount'              => [
+                    'value'    => $amount,
+                    'currency' => $currency,
+                ],
+                'metadata'            => [
+                    'orderId'   => $orderId,
+                    'paymentId' => $paymentId,
+                ],
+                'confirmation'        => [
+                    'type'       => 'redirect',
+                    'return_url' => $successReturnUrl,
+                ],
+                'payment_method_data' => [
+                    'type' => $paymentType,
+                ],
+                'description'         => $description,
+                'capture'             => true,
+            ];
+        }
         if ($paymentType === self::PAYMENT_TYPE_QIWI && isset($extraParams['phone'])) {
             $params['payment_method_data']['phone'] = $extraParams['phone'];
+        }
+        if ($this->needRecurring()) {
+            $params['save_payment_method'] = true;
         }
         if ($receipt instanceof Arrayable) {
             $params['receipt'] = (string)$receipt;
@@ -136,9 +163,9 @@ class YandexDriver implements PayService, YandexService
      *
      * @return bool
      */
-    public function validate($data)
+    public function validate(array $data): bool
     {
-        return ($this->lastError = $this->getTransport()->validate($data)) === 0;
+        return $this->getTransport()->validate($data);
     }
 
     /**
@@ -146,7 +173,7 @@ class YandexDriver implements PayService, YandexService
      *
      * @return array
      */
-    public function getConfig()
+    public function getConfig(): ?array
     {
         return $this->config;
     }
@@ -158,7 +185,7 @@ class YandexDriver implements PayService, YandexService
      *
      * @return $this
      */
-    public function setConfig($config)
+    public function setConfig(?array $config): self
     {
         $this->config = $config;
 
@@ -170,9 +197,9 @@ class YandexDriver implements PayService, YandexService
      *
      * @param array $data
      *
-     * @return mixed
+     * @return PayService
      */
-    public function setResponse($data)
+    public function setResponse(array $data): PayService
     {
         $data['DateTime'] = date('Y-m-d H:i:s');
         $this->response = $data;
@@ -184,11 +211,11 @@ class YandexDriver implements PayService, YandexService
      * Get response param by name
      *
      * @param string $name
-     * @param string $default
+     * @param mixed  $default
      *
      * @return mixed|string
      */
-    public function getResponseParam($name, $default = '')
+    public function getResponseParam(string $name, $default = '')
     {
         return Arr::get($this->response['object'] ?? [], $name, $default);
     }
@@ -198,7 +225,7 @@ class YandexDriver implements PayService, YandexService
      *
      * @return string
      */
-    public function getOrderId()
+    public function getOrderId(): string
     {
         return $this->getResponseParam('metadata.orderId');
     }
@@ -208,9 +235,9 @@ class YandexDriver implements PayService, YandexService
      *
      * @return string
      */
-    public function getStatus()
+    public function getStatus(): string
     {
-        return null;
+        return $this->getResponseParam('status', 'succeeded');
     }
 
     /**
@@ -218,7 +245,7 @@ class YandexDriver implements PayService, YandexService
      *
      * @return bool
      */
-    public function isSuccess()
+    public function isSuccess(): bool
     {
         return $this->getResponseParam('status') === 'succeeded';
     }
@@ -228,9 +255,9 @@ class YandexDriver implements PayService, YandexService
      *
      * @return string
      */
-    public function getTransactionId()
+    public function getTransactionId(): string
     {
-        return $this->getResponseParam('id');
+        return $this->getResponseParam('id', '');
     }
 
     /**
@@ -238,17 +265,17 @@ class YandexDriver implements PayService, YandexService
      *
      * @return float
      */
-    public function getAmount()
+    public function getAmount(): float
     {
-        return $this->getResponseParam('amount.value');
+        return $this->getResponseParam('amount.value', 0);
     }
 
     /**
      * Get error code
      *
-     * @return int
+     * @return string
      */
-    public function getErrorCode()
+    public function getErrorCode(): string
     {
         return $this->getResponseParam('action', 'cancelOrder') !== 'cancelOrder' ? 0 : 1;
     }
@@ -258,9 +285,9 @@ class YandexDriver implements PayService, YandexService
      *
      * @return string
      */
-    public function getProvider()
+    public function getProvider(): string
     {
-        return $this->getResponseParam('payment_method.type');
+        return $this->getPaymentMethod($this->getResponseParam('payment_method.type', ''), true);
     }
 
     /**
@@ -268,7 +295,7 @@ class YandexDriver implements PayService, YandexService
      *
      * @return string
      */
-    public function getPan()
+    public function getPan(): string
     {
         return $this->getResponseParam('payment_method.card.first6') . '******' . $this->getResponseParam('payment_method.card.last4');
     }
@@ -278,7 +305,7 @@ class YandexDriver implements PayService, YandexService
      *
      * @return string
      */
-    public function getDateTime()
+    public function getDateTime(): string
     {
         return $this->getResponseParam('DateTime');
     }
@@ -288,7 +315,7 @@ class YandexDriver implements PayService, YandexService
      *
      * @return PayProtocol
      */
-    public function getTransport()
+    public function getTransport(): PayProtocol
     {
         return $this->transport;
     }
@@ -300,7 +327,7 @@ class YandexDriver implements PayService, YandexService
      *
      * @return $this
      */
-    public function setTransport(PayProtocol $transport)
+    public function setTransport(PayProtocol $transport): PayService
     {
         $this->transport = $transport;
 
@@ -314,9 +341,9 @@ class YandexDriver implements PayService, YandexService
      *
      * @return string
      */
-    public function getNotificationResponse($errorCode = null)
+    public function getNotificationResponse(int $errorCode = null): Response
     {
-        return $this->getTransport()->getNotificationResponse($this->response, $errorCode !== null ? $errorCode : $this->getLastError());
+        return response($this->getTransport()->getNotificationResponse($this->response, $errorCode ?? $this->getLastError()));
     }
 
     /**
@@ -326,9 +353,9 @@ class YandexDriver implements PayService, YandexService
      *
      * @return string
      */
-    public function getCheckResponse($errorCode = null)
+    public function getCheckResponse(int $errorCode = null): Response
     {
-        return $this->getTransport()->getCheckResponse($this->response, $errorCode !== null ? $errorCode : $this->getLastError());
+        return response($this->getTransport()->getCheckResponse($this->response, $errorCode ?? $this->getLastError()));
     }
 
     /**
@@ -336,7 +363,7 @@ class YandexDriver implements PayService, YandexService
      *
      * @return int
      */
-    public function getLastError()
+    public function getLastError(): int
     {
         return $this->lastError;
     }
@@ -348,7 +375,7 @@ class YandexDriver implements PayService, YandexService
      *
      * @return mixed
      */
-    public function getParam($name)
+    public function getParam(string $name)
     {
         return $this->getResponseParam($name);
     }
@@ -358,9 +385,9 @@ class YandexDriver implements PayService, YandexService
      *
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
-        return 'yandex';
+        return self::PAYMENT_YANDEX;
     }
 
     /**
@@ -368,7 +395,7 @@ class YandexDriver implements PayService, YandexService
      *
      * @return string
      */
-    public function getPaymentId()
+    public function getPaymentId(): string
     {
         return $this->getResponseParam('metadata.paymentId');
     }
@@ -377,10 +404,11 @@ class YandexDriver implements PayService, YandexService
      * Get payment type for Yandex by constant value
      *
      * @param string $type
+     * @param bool   $reverse
      *
      * @return string
      */
-    public function getPaymentMethod($type)
+    public function getPaymentMethod(string $type, bool $reverse = false): string
     {
         $map = [
             self::PAYMENT_TYPE_CARD         => 'bank_card',
@@ -392,7 +420,11 @@ class YandexDriver implements PayService, YandexService
             self::PAYMENT_TYPE_ALFABANK     => 'alfabank',
         ];
 
-        return isset($map[$type]) ? $map[$type] : $map[self::PAYMENT_TYPE_CARD];
+        if ($reverse) {
+            $map = array_reverse($map);
+        }
+
+        return $map[$type] ?? 'bank_card';
     }
 
     /**
@@ -401,7 +433,7 @@ class YandexDriver implements PayService, YandexService
      *
      * @return bool
      */
-    public function needForm()
+    public function needForm(): bool
     {
         return false;
     }
@@ -409,30 +441,133 @@ class YandexDriver implements PayService, YandexService
     /**
      * Generate payment form
      *
-     * @param int       $orderId
-     * @param int       $paymentId
-     * @param float     $amount
-     * @param string    $currency
-     * @param string    $paymentType
-     * @param string    $successReturnUrl
-     * @param string    $failReturnUrl
-     * @param string    $description
-     * @param array     $extraParams
-     * @param Arrayable $receipt
+     * @param int     $orderId
+     * @param int     $paymentId
+     * @param float   $amount
+     * @param string  $currency
+     * @param string  $paymentType
+     * @param string  $successReturnUrl
+     * @param string  $failReturnUrl
+     * @param string  $description
+     * @param array   $extraParams
+     * @param Receipt $receipt
      *
      * @return IForm
      */
     public function getPaymentForm($orderId,
                                    $paymentId,
-                                   $amount,
-                                   $currency = self::CURRENCY_RUR,
-                                   $paymentType = self::PAYMENT_TYPE_CARD,
-                                   $successReturnUrl = '',
-                                   $failReturnUrl = '',
-                                   $description = '',
-                                   $extraParams = [],
-                                   $receipt = null)
+                                   float $amount,
+                                   string $currency = self::CURRENCY_RUR,
+                                   string $paymentType = self::PAYMENT_TYPE_CARD,
+                                   string $successReturnUrl = '',
+                                   string $failReturnUrl = '',
+                                   string $description = '',
+                                   array $extraParams = [],
+                                   Receipt $receipt = null): IForm
     {
         return new Form();
+    }
+
+    /**
+     * Get pay service options
+     *
+     * @return array
+     */
+    public static function getOptions(): array
+    {
+        return [
+            (new PayServiceOption())->setAlias('merchantId')->setLabel('ShopId')->setType(PayServiceOption::TYPE_STRING),
+            (new PayServiceOption())->setAlias('secretKey')->setLabel('SecretKey')->setType(PayServiceOption::TYPE_STRING),
+        ];
+    }
+
+    /**
+     * Get payment token
+     *
+     * @return string
+     */
+    public function getRecurringPayment(): string
+    {
+        return $this->getResponseParam('payment_method.id');
+    }
+
+    /**
+     * Remember payment fo recurring payments
+     *
+     * @return RecurringPayment
+     */
+    public function makeRecurring(): RecurringPayment
+    {
+        $this->needRecurring = true;
+
+        return $this;
+    }
+
+    /**
+     * Check payment need to be recurrent
+     *
+     * @return bool
+     */
+    public function needRecurring(): bool
+    {
+        return $this->needRecurring;
+    }
+
+    /**
+     * Set user id payment will be assigned
+     *
+     * @param string $id
+     *
+     * @return RecurringPayment
+     */
+    public function setUserId(string $id): RecurringPayment
+    {
+        $this->userId = $id;
+
+        return $this;
+    }
+
+    /**
+     * Get user account id
+     *
+     * @return null|string
+     */
+    public function getUserId(): ?string
+    {
+        return $this->userId;
+    }
+
+    /**
+     * Initialize recurring payment
+     *
+     * @param string $token
+     * @param string $paymentId
+     * @param float  $amount
+     * @param string $description
+     * @param string $currency
+     * @param array  $extraParams
+     *
+     * @return bool
+     */
+    public function initPayment(string $token, string $orderId, string $paymentId, float $amount, string $description, string $currency = PayService::CURRENCY_RUR_ISO, array $extraParams = []): bool
+    {
+        $params = [
+            'amount'            => [
+                'value'    => $amount,
+                'currency' => $currency,
+            ],
+            'payment_method_id' => $token,
+            'description'       => $description,
+            'capture'           => true,
+            'metadata'          => array_merge($extraParams, [
+                'accountId' => $this->getUserId(),
+                'paymentId' => $paymentId,
+                'orderId'   => $orderId,
+            ]),
+        ];
+
+        $this->getTransport()->getPaymentUrl($params);
+
+        return true;
     }
 }
