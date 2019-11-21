@@ -121,25 +121,26 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
             }
 
             return $failReturnUrl;
-        } else {
-            $params = [
-                'amount'              => [
-                    'value'    => $amount,
-                    'currency' => $currency,
-                ],
-                'metadata'            => [
-                    'orderId'   => $orderId,
-                    'paymentId' => $paymentId,
-                ],
-                'confirmation'        => [
-                    'type'       => 'redirect',
-                    'return_url' => $successReturnUrl,
-                ],
-                'payment_method_data' => [
-                    'type' => $paymentType,
-                ],
-                'description'         => $description,
-                'capture'             => true,
+        }
+        $params = [
+            'amount'       => [
+                'value'    => $amount,
+                'currency' => $currency,
+            ],
+            'metadata'     => [
+                'orderId'   => $orderId,
+                'paymentId' => $paymentId,
+            ],
+            'confirmation' => [
+                'type'       => 'redirect',
+                'return_url' => $successReturnUrl,
+            ],
+            'description'  => $description,
+            'capture'      => true,
+        ];
+        if (!empty($paymentType)) {
+            $params['payment_method_data'] = [
+                'type' => $paymentType,
             ];
         }
         if ($paymentType === self::PAYMENT_TYPE_QIWI && isset($extraParams['phone'])) {
