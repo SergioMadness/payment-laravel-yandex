@@ -114,7 +114,6 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
             $currency = $cur['alpha3'];
         }
 
-        $paymentType = $this->getPaymentMethod($paymentType);
         if (isset($extraParams['token'])) {
             if ($this->initPayment($extraParams['token'], $paymentId, $amount, $description, $currency, $extraParams)) {
                 return $successReturnUrl;
@@ -139,6 +138,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
             'capture'      => true,
         ];
         if (!empty($paymentType)) {
+            $paymentType = $this->getPaymentMethod($paymentType);
             $params['payment_method_data'] = [
                 'type' => $paymentType,
             ];
