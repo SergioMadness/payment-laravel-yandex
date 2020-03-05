@@ -571,4 +571,74 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
 
         return true;
     }
+
+    /**
+     * Get payment currency
+     *
+     * @return string
+     */
+    public function getCurrency(): string
+    {
+        return $this->getResponseParam('amount.currency');
+    }
+
+    /**
+     * Get card type. Visa, MC etc
+     *
+     * @return string
+     */
+    public function getCardType(): string
+    {
+        return $this->getResponseParam('payment_method.card.card_type');
+    }
+
+    /**
+     * Get card expiration date
+     *
+     * @return string
+     */
+    public function getCardExpDate(): string
+    {
+        return $this->getResponseParam('payment_method.card.expiry_year') . '-' . $this->getResponseParam('payment_method.card.expiry_month');
+    }
+
+    /**
+     * Get cardholder name
+     *
+     * @return string
+     */
+    public function getCardUserName(): string
+    {
+        return '';
+    }
+
+    /**
+     * Get card issuer
+     *
+     * @return string
+     */
+    public function getIssuer(): string
+    {
+        return $this->getResponseParam('payment_method.card.issuer_name');
+    }
+
+    /**
+     * Get e-mail
+     *
+     * @return string
+     */
+    public function getEmail(): string
+    {
+        return '';
+    }
+
+    /**
+     * Get payment type. "GooglePay" for example
+     *
+     * @return string
+     */
+    public function getPaymentType(): string
+    {
+        return '';
+    }
 }
