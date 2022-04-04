@@ -46,9 +46,6 @@
       "providers": [
         "professionalweb\\payment\\YandexProvider"
       ]
-    },
-    "branch-alias": {
-      "dev-improvement/interface-options": "1.1.x-dev"
     }
   }
 }
