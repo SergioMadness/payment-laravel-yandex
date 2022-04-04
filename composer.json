@@ -1,6 +1,6 @@
 {
   "name": "professionalweb/payment-laravel-yandex",
-  "description": "Driver for Kassa.Yandex",
+  "description": "Driver for yookassa",
   "homepage": "http://web-development.pw/",
   "keywords": [
     "pwf",
@@ -9,6 +9,7 @@
     "composer",
     "payment system",
     "kassa.yandex",
+    "yookassa",
     "laravel"
   ],
   "minimum-stability": "stable",
@@ -29,7 +30,7 @@
   "require": {
     "illuminate/support": "5.*",
     "professionalweb/payment-laravel": "dev-develop",
-    "yandex-money/yandex-checkout-sdk-php": "1.0.*",
+    "yoomoney/yookassa-sdk-php": "^2.1",
     "alcohol/iso4217": "*"
   },
   "config": {

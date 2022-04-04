@@ -1,6 +1,6 @@
 <?php namespace professionalweb\payment\drivers\yandex;
 
-use YandexCheckout\Client;
+use YooKassa\Client;
 use professionalweb\payment\contracts\PayProtocol;
 
 /**
@@ -32,8 +32,8 @@ class YandexKassa implements PayProtocol
     /**
      * Yandex.Kassa constructor.
      *
-     * @param int    $shopId
-     * @param string $shopSecret
+     * @param int|null    $shopId
+     * @param string|null $shopSecret
      */
     public function __construct(?int $shopId = null, ?string $shopSecret = null)
     {
@@ -70,14 +70,6 @@ class YandexKassa implements PayProtocol
      *
      * @return string
      * @throws \Exception
-     * @throws \YandexCheckout\Common\Exceptions\ApiException
-     * @throws \YandexCheckout\Common\Exceptions\BadApiRequestException
-     * @throws \YandexCheckout\Common\Exceptions\ForbiddenException
-     * @throws \YandexCheckout\Common\Exceptions\InternalServerError
-     * @throws \YandexCheckout\Common\Exceptions\NotFoundException
-     * @throws \YandexCheckout\Common\Exceptions\ResponseProcessingException
-     * @throws \YandexCheckout\Common\Exceptions\TooManyRequestsException
-     * @throws \YandexCheckout\Common\Exceptions\UnauthorizedException
      */
     public function getPaymentUrl(array $params): string
     {
@@ -122,7 +114,7 @@ class YandexKassa implements PayProtocol
     /**
      * Set shop secret key
      *
-     * @param string $shopSecret
+     * @param string|null $shopSecret
      *
      * @return $this;
      */

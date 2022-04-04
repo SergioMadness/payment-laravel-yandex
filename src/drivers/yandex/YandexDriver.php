@@ -85,16 +85,16 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
     /**
      * Pay
      *
-     * @param int        $orderId
-     * @param int        $paymentId
-     * @param float      $amount
-     * @param int|string $currency
-     * @param string     $paymentType
-     * @param string     $successReturnUrl
-     * @param string     $failReturnUrl
-     * @param string     $description
-     * @param array      $extraParams
-     * @param Receipt    $receipt
+     * @param int          $orderId
+     * @param int          $paymentId
+     * @param float        $amount
+     * @param int|string   $currency
+     * @param string       $paymentType
+     * @param string       $successReturnUrl
+     * @param string       $failReturnUrl
+     * @param string       $description
+     * @param array        $extraParams
+     * @param Receipt|null $receipt
      *
      * @return string
      */
@@ -417,7 +417,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
             self::PAYMENT_TYPE_MOBILE       => 'mobile_balance',
             self::PAYMENT_TYPE_QIWI         => 'qiwi',
             self::PAYMENT_TYPE_SBERBANK     => 'sberbank',
-            self::PAYMENT_TYPE_YANDEX_MONEY => 'yandex_money',
+            self::PAYMENT_TYPE_YANDEX_MONEY => 'yoo_money',
             self::PAYMENT_TYPE_ALFABANK     => 'alfabank',
         ];
 
@@ -442,16 +442,16 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
     /**
      * Generate payment form
      *
-     * @param int     $orderId
-     * @param int     $paymentId
-     * @param float   $amount
-     * @param string  $currency
-     * @param string  $paymentType
-     * @param string  $successReturnUrl
-     * @param string  $failReturnUrl
-     * @param string  $description
-     * @param array   $extraParams
-     * @param Receipt $receipt
+     * @param int          $orderId
+     * @param int          $paymentId
+     * @param float        $amount
+     * @param string       $currency
+     * @param string       $paymentType
+     * @param string       $successReturnUrl
+     * @param string       $failReturnUrl
+     * @param string       $description
+     * @param array        $extraParams
+     * @param Receipt|null $receipt
      *
      * @return IForm
      */
@@ -542,6 +542,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      * Initialize recurring payment
      *
      * @param string $token
+     * @param string $orderId
      * @param string $paymentId
      * @param float  $amount
      * @param string $description
