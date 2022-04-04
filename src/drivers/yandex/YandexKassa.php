@@ -75,7 +75,9 @@ class YandexKassa implements PayProtocol
     {
         $response = $this->getClient()->createPayment($this->prepareParams($params));
 
-        return $response['confirmation']['confirmation_url'] ?? '';
+        return $response->getConfirmation()->getType() === 'embedded' ?
+            $response->getConfirmation()->getConfirmationToken() :
+            $response->getConfirmation()->getConfirmationUrl();
     }
 
     /**

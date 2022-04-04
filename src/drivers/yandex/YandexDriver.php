@@ -99,7 +99,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      * @return string
      */
     public function getPaymentLink($orderId,
-                                   $paymentId,
+        $paymentId,
                                    float $amount,
                                    string $currency = self::CURRENCY_RUR_ISO,
                                    string $paymentType = self::PAYMENT_TYPE_CARD,
@@ -137,6 +137,9 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
             'description'  => $description,
             'capture'      => true,
         ];
+        if (isset($extraParams['needWidget']) && $extraParams['needWidget']) {
+            $params['confirmation']['type'] = 'embedded';
+        }
         if (!empty($paymentType)) {
             $paymentType = $this->getPaymentMethod($paymentType);
             $params['payment_method_data'] = [
@@ -456,7 +459,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      * @return IForm
      */
     public function getPaymentForm($orderId,
-                                   $paymentId,
+        $paymentId,
                                    float $amount,
                                    string $currency = self::CURRENCY_RUR,
                                    string $paymentType = self::PAYMENT_TYPE_CARD,
