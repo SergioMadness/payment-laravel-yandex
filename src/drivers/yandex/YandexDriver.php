@@ -139,8 +139,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
         ];
         if (isset($extraParams['needWidget']) && $extraParams['needWidget']) {
             $params['confirmation']['type'] = 'embedded';
-        }
-        if (!empty($paymentType)) {
+        } elseif (!empty($paymentType)) {
             $paymentType = $this->getPaymentMethod($paymentType);
             $params['payment_method_data'] = [
                 'type' => $paymentType,
