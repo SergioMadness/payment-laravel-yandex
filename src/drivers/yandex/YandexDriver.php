@@ -346,7 +346,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      */
     public function getNotificationResponse(int $errorCode = null): Response
     {
-        return response($this->getTransport()->getNotificationResponse($this->response, $errorCode ?? $this->getLastError()));
+        return new Response($this->getTransport()->getNotificationResponse($this->response, $errorCode ?? $this->getLastError()));
     }
 
     /**
@@ -358,7 +358,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      */
     public function getCheckResponse(int $errorCode = null): Response
     {
-        return response($this->getTransport()->getCheckResponse($this->response, $errorCode ?? $this->getLastError()));
+        return new Response($this->getTransport()->getCheckResponse($this->response, $errorCode ?? $this->getLastError()));
     }
 
     /**
