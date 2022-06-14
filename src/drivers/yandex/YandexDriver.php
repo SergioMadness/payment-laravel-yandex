@@ -85,21 +85,21 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
     /**
      * Pay
      *
-     * @param int        $orderId
-     * @param int        $paymentId
-     * @param float      $amount
-     * @param int|string $currency
-     * @param string     $paymentType
-     * @param string     $successReturnUrl
-     * @param string     $failReturnUrl
-     * @param string     $description
-     * @param array      $extraParams
-     * @param Receipt    $receipt
+     * @param int          $orderId
+     * @param int          $paymentId
+     * @param float        $amount
+     * @param int|string   $currency
+     * @param string       $paymentType
+     * @param string       $successReturnUrl
+     * @param string       $failReturnUrl
+     * @param string       $description
+     * @param array        $extraParams
+     * @param Receipt|null $receipt
      *
      * @return string
      */
     public function getPaymentLink($orderId,
-                                   $paymentId,
+        $paymentId,
                                    float $amount,
                                    string $currency = self::CURRENCY_RUR_ISO,
                                    string $paymentType = self::PAYMENT_TYPE_CARD,
@@ -137,7 +137,9 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
             'description'  => $description,
             'capture'      => true,
         ];
-        if (!empty($paymentType)) {
+        if (isset($extraParams['needWidget']) && $extraParams['needWidget']) {
+            $params['confirmation']['type'] = 'embedded';
+        } elseif (!empty($paymentType)) {
             $paymentType = $this->getPaymentMethod($paymentType);
             $params['payment_method_data'] = [
                 'type' => $paymentType,
@@ -344,7 +346,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      */
     public function getNotificationResponse(int $errorCode = null): Response
     {
-        return response($this->getTransport()->getNotificationResponse($this->response, $errorCode ?? $this->getLastError()));
+        return new Response($this->getTransport()->getNotificationResponse($this->response, $errorCode ?? $this->getLastError()));
     }
 
     /**
@@ -356,7 +358,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      */
     public function getCheckResponse(int $errorCode = null): Response
     {
-        return response($this->getTransport()->getCheckResponse($this->response, $errorCode ?? $this->getLastError()));
+        return new Response($this->getTransport()->getCheckResponse($this->response, $errorCode ?? $this->getLastError()));
     }
 
     /**
@@ -417,7 +419,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
             self::PAYMENT_TYPE_MOBILE       => 'mobile_balance',
             self::PAYMENT_TYPE_QIWI         => 'qiwi',
             self::PAYMENT_TYPE_SBERBANK     => 'sberbank',
-            self::PAYMENT_TYPE_YANDEX_MONEY => 'yandex_money',
+            self::PAYMENT_TYPE_YANDEX_MONEY => 'yoo_money',
             self::PAYMENT_TYPE_ALFABANK     => 'alfabank',
         ];
 
@@ -442,21 +444,21 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
     /**
      * Generate payment form
      *
-     * @param int     $orderId
-     * @param int     $paymentId
-     * @param float   $amount
-     * @param string  $currency
-     * @param string  $paymentType
-     * @param string  $successReturnUrl
-     * @param string  $failReturnUrl
-     * @param string  $description
-     * @param array   $extraParams
-     * @param Receipt $receipt
+     * @param int          $orderId
+     * @param int          $paymentId
+     * @param float        $amount
+     * @param string       $currency
+     * @param string       $paymentType
+     * @param string       $successReturnUrl
+     * @param string       $failReturnUrl
+     * @param string       $description
+     * @param array        $extraParams
+     * @param Receipt|null $receipt
      *
      * @return IForm
      */
     public function getPaymentForm($orderId,
-                                   $paymentId,
+        $paymentId,
                                    float $amount,
                                    string $currency = self::CURRENCY_RUR,
                                    string $paymentType = self::PAYMENT_TYPE_CARD,
@@ -542,6 +544,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      * Initialize recurring payment
      *
      * @param string $token
+     * @param string $orderId
      * @param string $paymentId
      * @param float  $amount
      * @param string $description
