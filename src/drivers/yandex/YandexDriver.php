@@ -3,7 +3,6 @@
 use Alcohol\ISO4217;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Response;
-use professionalweb\payment\Form;
 use Illuminate\Contracts\Support\Arrayable;
 use professionalweb\payment\contracts\Receipt;
 use professionalweb\payment\contracts\PayService;
@@ -438,7 +437,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      */
     public function needForm(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -457,18 +456,24 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      *
      * @return IForm
      */
-    public function getPaymentForm($orderId,
+    public function getPaymentForm(
+        $orderId,
         $paymentId,
-                                   float $amount,
-                                   string $currency = self::CURRENCY_RUR,
-                                   string $paymentType = self::PAYMENT_TYPE_CARD,
-                                   string $successReturnUrl = '',
-                                   string $failReturnUrl = '',
-                                   string $description = '',
-                                   array $extraParams = [],
-                                   Receipt $receipt = null): IForm
+        float $amount,
+        string $currency = self::CURRENCY_RUR,
+        string $paymentType = self::PAYMENT_TYPE_CARD,
+        string $successReturnUrl = '',
+        string $failReturnUrl = '',
+        string $description = '',
+        array $extraParams = [],
+        Receipt $receipt = null
+    ): IForm
     {
-        return new Form();
+        $extraParams['needWidget'] = true;
+
+        $token = $this->getPaymentLink($orderId, $paymentId, $amount, $currency, $paymentType, $successReturnUrl, $failReturnUrl, $description, $extraParams, $receipt);
+
+        return (new Form())->setConfirmationToken($token)->setReturnUrl($successReturnUrl);
     }
 
     /**
