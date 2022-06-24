@@ -151,7 +151,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
             $params['save_payment_method'] = true;
         }
         if ($receipt instanceof Arrayable) {
-            $params['receipt'] = (string)$receipt;
+            $params['receipt'] = $receipt->toArray();
         }
         $params = array_merge($params, $extraParams);
 
