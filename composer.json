@@ -28,7 +28,7 @@
     "source": "https://github.com/SergioMadness/payment-laravel-yandex/releases"
   },
   "require": {
-    "professionalweb/payment-laravel": "dev-improvement/upgrade-framework",
+    "professionalweb/payment-laravel": "dev-develop",
     "yoomoney/yookassa-sdk-php": "*",
     "alcohol/iso4217": "*"
   },
