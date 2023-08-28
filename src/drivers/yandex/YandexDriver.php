@@ -84,15 +84,15 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
     /**
      * Pay
      *
-     * @param int          $orderId
-     * @param int          $paymentId
-     * @param float        $amount
-     * @param int|string   $currency
-     * @param string       $paymentType
-     * @param string       $successReturnUrl
-     * @param string       $failReturnUrl
-     * @param string       $description
-     * @param array        $extraParams
+     * @param int $orderId
+     * @param int $paymentId
+     * @param float $amount
+     * @param int|string $currency
+     * @param string $paymentType
+     * @param string $successReturnUrl
+     * @param string $failReturnUrl
+     * @param string $description
+     * @param array $extraParams
      * @param Receipt|null $receipt
      *
      * @return string
@@ -152,6 +152,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
         }
         if ($receipt instanceof Arrayable) {
             $params['receipt'] = $receipt->toArray();
+            $params['receipt']['customer']['email'] = $extraParams['email'] ?? ($extraParams['phone'] ?? '');
         }
         $params = array_merge($params, $extraParams);
 
@@ -213,7 +214,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      * Get response param by name
      *
      * @param string $name
-     * @param mixed  $default
+     * @param mixed $default
      *
      * @return mixed|string
      */
@@ -406,7 +407,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      * Get payment type for Yandex by constant value
      *
      * @param string $type
-     * @param bool   $reverse
+     * @param bool $reverse
      *
      * @return string
      */
@@ -443,15 +444,15 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
     /**
      * Generate payment form
      *
-     * @param int          $orderId
-     * @param int          $paymentId
-     * @param float        $amount
-     * @param string       $currency
-     * @param string       $paymentType
-     * @param string       $successReturnUrl
-     * @param string       $failReturnUrl
-     * @param string       $description
-     * @param array        $extraParams
+     * @param int $orderId
+     * @param int $paymentId
+     * @param float $amount
+     * @param string $currency
+     * @param string $paymentType
+     * @param string $successReturnUrl
+     * @param string $failReturnUrl
+     * @param string $description
+     * @param array $extraParams
      * @param Receipt|null $receipt
      *
      * @return IForm
@@ -551,10 +552,10 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      * @param string $token
      * @param string $orderId
      * @param string $paymentId
-     * @param float  $amount
+     * @param float $amount
      * @param string $description
      * @param string $currency
-     * @param array  $extraParams
+     * @param array $extraParams
      *
      * @return bool
      */
