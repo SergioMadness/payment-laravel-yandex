@@ -29,7 +29,7 @@
   },
   "require": {
     "professionalweb/payment-laravel": "dev-develop",
-    "yoomoney/yookassa-sdk-php": "*",
+    "yoomoney/yookassa-sdk-php": "^2.0",
     "alcohol/iso4217": "*"
   },
   "config": {

@@ -36,11 +36,13 @@ class Receipt extends IReceipt
     /**
      * патентная СН
      */
-    public const TAX_SYSTEM_SIMPLE_PATENT = 5;
+    public const TAX_SYSTEM_SIMPLE_PATENT = 6;
 
 
     /**
      * Receipt to array
+     *
+     * @see https://yookassa.ru/developers/api#create_payment_receipt
      *
      * @return array
      */
@@ -53,8 +55,10 @@ class Receipt extends IReceipt
 
         $contact = $this->getContact();
         $result = [
-            filter_var($contact, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone' => $contact,
-            'items'                                                         => $items,
+            'customer' => [
+                filter_var($contact, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone' => $contact,
+            ],
+            'items'    => $items,
         ];
         if (($taxSystem = $this->getTaxSystem()) !== null) {
             $result['tax_system_code'] = $taxSystem;

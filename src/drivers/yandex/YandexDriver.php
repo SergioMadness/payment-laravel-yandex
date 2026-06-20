@@ -122,7 +122,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
         }
         $params = [
             'amount'       => [
-                'value'    => $amount,
+                'value'    => number_format($amount, 2, '.', ''),
                 'currency' => $currency,
             ],
             'metadata'     => [
@@ -152,9 +152,20 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
         }
         if ($receipt instanceof Arrayable) {
             $params['receipt'] = $receipt->toArray();
-            $params['receipt']['customer']['email'] = $extraParams['email'] ?? ($extraParams['phone'] ?? '');
+            if (empty($params['receipt']['customer']['email']) && empty($params['receipt']['customer']['phone'])) {
+                if (!empty($extraParams['email'])) {
+                    $params['receipt']['customer']['email'] = $extraParams['email'];
+                } elseif (!empty($extraParams['phone'])) {
+                    $params['receipt']['customer']['phone'] = $extraParams['phone'];
+                }
+            }
         }
-        $params = array_merge($params, $extraParams);
+        if (isset($extraParams['idempotenceKey'])) {
+            $params['_idempotenceKey'] = $extraParams['idempotenceKey'];
+        }
+
+        // Не пробрасываем в API внутренние управляющие флаги
+        $params = array_merge($params, Arr::except($extraParams, ['token', 'needWidget', 'phone', 'email', 'idempotenceKey']));
 
         return $this->getTransport()->getPaymentUrl($params);
     }
@@ -424,7 +435,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
         ];
 
         if ($reverse) {
-            $map = array_reverse($map);
+            return array_flip($map)[$type] ?? $type;
         }
 
         return $map[$type] ?? 'bank_card';
@@ -561,20 +572,27 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      */
     public function initPayment(string $token, string $orderId, string $paymentId, float $amount, string $description, string $currency = PayService::CURRENCY_RUR_ISO, array $extraParams = []): bool
     {
+        if (is_numeric($currency)) {
+            $currency = (new ISO4217())->getByNumeric((string)$currency)['alpha3'];
+        }
+
         $params = [
             'amount'            => [
-                'value'    => $amount,
+                'value'    => number_format($amount, 2, '.', ''),
                 'currency' => $currency,
             ],
             'payment_method_id' => $token,
             'description'       => $description,
             'capture'           => true,
-            'metadata'          => array_merge($extraParams, [
+            'metadata'          => array_merge(Arr::except($extraParams, ['idempotenceKey']), [
                 'accountId' => $this->getUserId(),
                 'paymentId' => $paymentId,
                 'orderId'   => $orderId,
             ]),
         ];
+        if (isset($extraParams['idempotenceKey'])) {
+            $params['_idempotenceKey'] = $extraParams['idempotenceKey'];
+        }
 
         $this->getTransport()->getPaymentUrl($params);
 

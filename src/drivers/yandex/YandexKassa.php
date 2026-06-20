@@ -73,7 +73,8 @@ class YandexKassa implements PayProtocol
      */
     public function getPaymentUrl(array $params): string
     {
-        $response = $this->getClient()->createPayment($this->prepareParams($params));
+        $idempotenceKey = $params['_idempotenceKey'] ?? null;
+        $response = $this->getClient()->createPayment($this->prepareParams($params), $idempotenceKey);
 
         return $response->getConfirmation()->getType() === 'embedded' ?
             $response->getConfirmation()->getConfirmationToken() :
@@ -178,6 +179,9 @@ class YandexKassa implements PayProtocol
      */
     public function prepareParams(array $params): array
     {
+        // Внутренний служебный ключ, не является полем API создания платежа
+        unset($params['_idempotenceKey']);
+
         return $params;
     }
 }
