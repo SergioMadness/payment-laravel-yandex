@@ -53,6 +53,8 @@ class ReceiptItem extends IReceiptItem
             ],
             'vat_code'    => $this->getTax(),
             'description' => mb_substr($this->getName(), 0, 128),
+            'payment_mode' => 'full_prepayment',
+            'payment_subject' => 'service',
         ];
     }
 }
