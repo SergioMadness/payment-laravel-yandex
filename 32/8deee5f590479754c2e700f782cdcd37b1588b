@@ -1,0 +1,37 @@
+src/drivers/yandex/YandexKassa.php
+  s_6cd64e40ebac84::t_049b6f85bf2cab 93-114
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "0.0.56",
+  "base_commit_sha": "328deee5f590479754c2e700f782cdcd37b1588b",
+  "prompts": {},
+  "sessions": {
+    "s_6cd64e40ebac84": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5539c095-e116-4fb7-8c1a-248f5120e07e",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "SergioMadness <madness.sergio@gmail.com>",
+      "usage": [
+        {
+          "model": "claude-opus-5-5",
+          "input_tokens": 830,
+          "output_tokens": 224237,
+          "cache_read_tokens": 49049212,
+          "cache_write_5m_tokens": 938120,
+          "cache_write_1h_tokens": 266254,
+          "assistant_messages": 409,
+          "turns": 9,
+          "ai_wall_ms": 1527903,
+          "first_ts": "2026-09-29T14:20:41.363Z",
+          "last_ts": "2026-09-29T14:53:32.560Z",
+          "session_total_output_tokens": 224237
+        }
+      ],
+      "accepted_lines": 22,
+      "overridden_lines": 0
+    }
+  }
+}
