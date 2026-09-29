@@ -90,7 +90,28 @@ class YandexKassa implements PayProtocol
      */
     public function validate(array $params): bool
     {
-        return true;
+        // a notification of YooKassa is not signed: it is true only if the API tells the same about the payment
+        $object = $params['object'] ?? null;
+        if (!is_array($object) || empty($object['id']) || !is_string($object['id'])) {
+            return false;
+        }
+
+        try {
+            $payment = $this->getClient()->getPaymentInfo($object['id']);
+        } catch (\Throwable $ex) {
+            return false;
+        }
+        if ($payment === null || $payment->getAmount() === null) {
+            return false;
+        }
+
+        $metadata = $payment->getMetadata() !== null ? $payment->getMetadata()->toArray() : [];
+
+        return $payment->getStatus() === ($object['status'] ?? null)
+            && abs((float)$payment->getAmount()->getValue() - (float)($object['amount']['value'] ?? 0)) < 0.01
+            && $payment->getAmount()->getCurrency() === ($object['amount']['currency'] ?? null)
+            && ($metadata['paymentId'] ?? null) === ($object['metadata']['paymentId'] ?? null)
+            && ($metadata['orderId'] ?? null) === ($object['metadata']['orderId'] ?? null);
     }
 
 
