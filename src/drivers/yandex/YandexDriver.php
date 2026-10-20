@@ -106,7 +106,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
                                    string $failReturnUrl = '',
                                    string $description = '',
                                    array $extraParams = [],
-                                   Receipt $receipt = null): string
+                                   ?Receipt $receipt = null): string
     {
         if (is_numeric($currency)) {
             $cur = (new ISO4217())->getByNumeric($currency);
@@ -355,7 +355,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      *
      * @return string
      */
-    public function getNotificationResponse(int $errorCode = null): Response
+    public function getNotificationResponse(?int $errorCode = null): Response
     {
         return new Response($this->getTransport()->getNotificationResponse($this->response, $errorCode ?? $this->getLastError()));
     }
@@ -367,7 +367,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
      *
      * @return string
      */
-    public function getCheckResponse(int $errorCode = null): Response
+    public function getCheckResponse(?int $errorCode = null): Response
     {
         return new Response($this->getTransport()->getCheckResponse($this->response, $errorCode ?? $this->getLastError()));
     }
@@ -478,7 +478,7 @@ class YandexDriver implements PayService, YandexService, RecurringPayment
         string $failReturnUrl = '',
         string $description = '',
         array $extraParams = [],
-        Receipt $receipt = null
+        ?Receipt $receipt = null
     ): IForm
     {
         $extraParams['needWidget'] = true;
